@@ -64,6 +64,26 @@ def learn_bovw(data):
 
     np.save('voc.npy', vocabulary)
 
+def extract_features(data):
+    """
+    Extracts features for given data and saves it as "desc" entry.
+    @param data: List of dictionaries, one for every sample, with entries "image" (np.array with image) and "label" (class_id).
+    @return: Data with added descriptors for each sample.
+    """
+    sift = cv2.SIFT_create()
+    flann = cv2.FlannBasedMatcher_create()
+    bow = cv2.BOWImgDescriptorExtractor(sift, flann)
+    vocabulary = np.load('voc.npy')
+    bow.setVocabulary(vocabulary)
+    for sample in data:
+        # compute descriptor and add it as "desc" entry in sample
+        kpts = sift.detect(sample['image'], None)
+        desc = bow.compute(sample['image'], kpts)  # robienie deskryptora
+        sample['desc'] = desc
+
+    return data
+
+
 def main():
     data_train = load_data('./', 'Train.csv')
     print('train dataset before balancing:')
@@ -74,8 +94,8 @@ def main():
     display_dataset_stats(data_test)
 
     # you can comment those lines after dictionary is learned and saved to disk.
-    print('learning BoVW')
-    learn_bovw(data_train)
+    #print('learning BoVW')
+    #learn_bovw(data_train)
 
 
 
