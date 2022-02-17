@@ -13,6 +13,7 @@ class_id_to_new_class_id = {1: 1, #crosswalks
 def load_data(path, filename):
     """
     Ladowanie danych z folderu, w ktorym znajduja się pliki: Train, Test, Train.csv, Test.csv
+    Dodatkowo zaimplementowanie wycinanie (crop) zdjec do znakow
     @param path: Sciezka do pliku.
     @param filename: Plik rozszerzenia .csv (Train.csv oraz Test.csv).
     @return: Dane.
@@ -21,6 +22,7 @@ def load_data(path, filename):
 
     data = []
     elementy = 0
+    elementy0 = 0
     for idx, entry in entry_list.iterrows():
         class_id = class_id_to_new_class_id[entry['ClassId']]
         image_path = entry['Path']
@@ -30,17 +32,19 @@ def load_data(path, filename):
         Y1 = entry['Roi.Y1']
         Y2 = entry['Roi.Y2']
 
+        amount = entry['Amount']
 
         if filename in entry_list.iterrows():
             index_ = entry['ClassId'].index(filename)
             elementy = entry['1'][index_]
+        if filename in entry_list.iterrows():
+            indexx = entry['ClassId'].index(filename)
+            elementy0 = entry['0'][indexx]
 
         if class_id != -1:
             image = cv2.imread(os.path.join(path, image_path))
             cropped_im = image[int(Y1):int(Y2), int(X1):int(X2)]
-            #image = Image.open(os.path.join(path, image_path))
-            #image = image.crop[Y1, Y2, X1, X2]
-            data.append({'image': image, 'cropped_im': cropped_im, 'label': class_id, 'size': [X1, Y1, X2, Y2], 'png_name': image_path, 'xmin': X1, 'xmax': X2, 'ymin': Y1, 'ymax': Y2, 'Count': elementy})
+            data.append({'image': image, 'cropped_im': cropped_im, 'label': class_id, 'size': [X1, Y1, X2, Y2], 'png_name': image_path, 'xmin': X1, 'xmax': X2, 'ymin': Y1, 'ymax': Y2, 'Count': elementy, 'Count2': elementy0, 'amount': amount})
 
     return data
 
@@ -125,12 +129,11 @@ def predict(rf, data):  # przyjmuje rf gdzie mamy zapisany model i dane porzedni
     @return: Dane z dodanymi wypredykowanymi etykietami.
     """
 
-    for idx, sample in enumerate(data): #sprobuj bez idx
+    for idx, sample in enumerate(data):
         if sample['desc'] is not None:
             pred = rf.predict(sample['desc'])  # ta linia jest kluczowa dla predykcji, ale my chcemy zewaluowac cala baze danych dlatego robimy inne linijki
             sample['label_pred'] = int(pred)
     # zwraca etykiete do pred i uzupelniamy tabele data etykietą (etykiety byly 0,1)
-    # ------------------
 
     return data  # dane z wypredykowanymi etykietami
 
@@ -238,26 +241,28 @@ def display(data):
     cv2.imshow('images incorrect', image_corr)
     cv2.waitKey()
 
-    # this function does not return anything
     return
 
-def display_new(data):
+def display_data(data):
 
     for idx, sample in enumerate(data):
-        count = sample['Count']
+        #count = sample['Count']
+        #count0 = sample['Count2']
+
         if sample['desc'] is not None:
             if sample['label_pred'] == sample['label']:
                 if sample['label_pred'] != 0:
-                    count=count+1
+                    #count=count+1
                     print(sample['png_name'])
-                    print(count)
+                    #print(count)
+                    print(sample['amount'])
                     print('xmin = ', sample['xmin'], 'xmax = ', sample['xmax'], 'ymin= ', sample['ymin'], 'ymax = ', sample['ymax'])
     print('Koniec wyswietlania')
     return
 
 def main():
     data_train = load_data('./', 'Train.csv')
-    print('Zbior danych treningowych')
+    print('Zbior danych treningowych:')
     display_dataset_stats(data_train)
 
     data_test = load_data('./', 'Test.csv')
@@ -265,7 +270,7 @@ def main():
     display_dataset_stats(data_test)
 
     # Kiedy slownik jest nauczony i zapisany w folderze mozna zakomentowac dwie nastepne linijki.
-    print('learning BoVW')
+    print('Uczenie BoVW')
     learn_bovw(data_train)
 
     print('Ekstrakcja trenowanych cech')
@@ -274,14 +279,14 @@ def main():
     print('Trenowanie')
     rf = train(data_train)
 
-    print('extracting test features')
+    print('Ekstrakcja testowych cech')
     data_test = extract_features(data_test)
 
-    print('testing on testing dataset')
+    print('Testowanie na danych testowych')
     data_test = predict(rf, data_test)
 
     evaluate(data_test)
-    display_new(data_test)
+    display_data(data_test)
     #display(data_test)
 
 

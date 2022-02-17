@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import glob2
 
-cols = ["Width", "Height", "Roi.X1", "Roi.Y1", "Roi.X2", "Roi.Y2", "ClassId", "Path"]
+cols = ["Amount", "Width", "Height", "Roi.X1", "Roi.Y1", "Roi.X2", "Roi.Y2", "ClassId", "Path"]
 rows = []
 Class_from_xml = 0
 how_many_1 = 0
@@ -24,6 +24,7 @@ for filename in glob2.glob(os.path.join(path, '*.xml')):
     Path = xmlparse.find("filename").text
     Width = xmlparse.find("size/width").text
     Height = xmlparse.find("size/height").text
+    amount = len(root2)
     for i in root2:
         if i:
             RoiX1 = i.find("bndbox/xmin").text
@@ -44,7 +45,7 @@ for filename in glob2.glob(os.path.join(path, '*.xml')):
             #    ClassId = 0
             #    how_many_0 = how_many_0+1
 
-        rows.append([Width, Height, RoiX1, RoiY1, RoiX2, RoiY2, ClassId, 'Test/' + Path])
+        rows.append([amount, Width, Height, RoiX1, RoiY1, RoiX2, RoiY2, ClassId, 'Test/' + Path])
     df = pd.DataFrame(rows, columns=cols)
 
     # Tworzenie pliku .csv i zapis do niego:
