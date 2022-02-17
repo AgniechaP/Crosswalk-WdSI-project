@@ -5,11 +5,11 @@
 
  Politechnika Poznańska, 2021/2022
  
- Cel projektu: 
+ **Cel projektu:** 
  
- Celem projektu było zaimplementowanie funkcjonalności rozpoznawania znaków przejścia dla pieszych (crosswalks) na podstawie przykładowej bazy znaków drogowych. 
+Celem projektu było zaimplementowanie funkcjonalności rozpoznawania znaków przejścia dla pieszych (crosswalks) na zdjęciach z bazy testowej. Program został oparty na plikach wyodrębnionych z pobranej przykładowej bazy znaków drogowych. 
  
-** Wykonanie projektu:**
+**Wykonanie projektu:**
 
 1) Pierwszym krokiem było podzielenie przykładowej bazy danych na dwie sekcje: Train oraz Test. W folderze "Train" znajdują się zdjęcia należące do bazy treningowej, natomiast folder "Train_xml" zawiera odpowiadające zdjęciom pliki .xml opisujące daną fotografię. Analogicznie jest dla folderów "Test" oraz "Test_xml" odzwierciedlających bazę testową,
 2) W zawartości projektu znajdują się dwa skrypty umożliwiające konwersję danych z rozszezreniem .xml na dwa pliki .csv (Train.csv oraz Test.csv). Zapisane są w nich następujące dane: Amount (liczba znaków w obrębie jednej fotografii), Width, Height, Roi.X1 (zmienna xmin z pliku .xml), Roi.Y1 (ymin), Roi.X2 (xmax), Roi.Y2 (ymax), ClassId (klasa, do której należy dany znak drogowy), Path (ścieżka z nazwą pliku .png),
