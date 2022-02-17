@@ -34,9 +34,15 @@ for filename in glob2.glob(os.path.join(path, '*.xml')):
             if Class_from_xml == 'crosswalk':
                 ClassId = 1
                 how_many_1 = how_many_1+1
-            else:
-                ClassId = 0
-                how_many_0=how_many_0+1
+            if Class_from_xml == 'stop':
+                ClassId = 2
+            if Class_from_xml == 'speedlimit':
+                ClassId = 3
+            if Class_from_xml == 'trafficlight':
+                ClassId = 4
+            #else:
+            #    ClassId = 0
+            #    how_many_0 = how_many_0+1
 
         rows.append([Width, Height, RoiX1, RoiY1, RoiX2, RoiY2, ClassId, 'Test/' + Path])
     df = pd.DataFrame(rows, columns=cols)

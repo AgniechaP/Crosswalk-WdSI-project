@@ -5,7 +5,11 @@ import cv2
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 import pandas
-
+from PIL import Image
+class_id_to_new_class_id = {1: 1, #crosswalks
+                            2: 0,
+                            3: 0,
+                            4: 0}
 def load_data(path, filename):
     """
     Ladowanie danych z folderu, w ktorym znajduja się pliki: Train, Test, Train.csv, Test.csv
@@ -17,12 +21,19 @@ def load_data(path, filename):
 
     data = []
     for idx, entry in entry_list.iterrows():
-        class_id = entry['ClassId']
+        class_id = class_id_to_new_class_id[entry['ClassId']]
         image_path = entry['Path']
+
+        X1 = entry_list['Roi.X1']
+        X2 = entry['Roi.X2']
+        Y1 = entry['Roi.Y1']
+        Y2 = entry['Roi.Y2']
 
         if class_id != -1:
             image = cv2.imread(os.path.join(path, image_path))
-            data.append({'image': image, 'label': class_id})
+            #image = Image.open(os.path.join(path, image_path))
+            #image = image.crop[Y1, Y2, X1, X2]
+            data.append({'image': image, 'label': class_id, 'size': [X1, Y1, X2, Y2], 'png_name': image_path})
 
     return data
 
@@ -107,11 +118,11 @@ def predict(rf, data):  # przyjmuje rf gdzie mamy zapisany model i dane porzedni
     @return: Dane z dodanymi wypredykowanymi etykietami.
     """
 
-    for idx, sample in enumerate(data):
+    for idx, sample in enumerate(data): #sprobuj bez idx
         if sample['desc'] is not None:
             pred = rf.predict(sample['desc'])  # ta linia jest kluczowa dla predykcji, ale my chcemy zewaluowac cala baze danych dlatego robimy inne linijki
             sample['label_pred'] = int(pred)
-    # zwraca etykiete do pred i uzupelniamy tabele data etykietą (etykiety byly 1, 2 ,3)
+    # zwraca etykiete do pred i uzupelniamy tabele data etykietą (etykiety byly 0,1)
     # ------------------
 
     return data  # dane z wypredykowanymi etykietami
@@ -126,7 +137,8 @@ def evaluate(data):  # porownanie statystyczne, kolumna label_pred - wypredkowan
     n_incorr = 0
     pred_labels = []
     true_labels = []
-    for idx, sample in enumerate(data):
+    #for idx, sample in enumerate(data):
+    for sample in data:
         if sample['desc'] is not None:
             pred_labels.append(sample['label_pred'])
             true_labels.append(sample['label'])
@@ -134,12 +146,101 @@ def evaluate(data):  # porownanie statystyczne, kolumna label_pred - wypredkowan
                 n_corr += 1
             else:
                 n_incorr += 1
-    n = n_corr / max(n_corr + n_incorr, 1)
+    n = (n_corr / max(n_corr + n_incorr, 1))
     print("Score = " + str(n))
 
     conf_matrix = confusion_matrix(true_labels, pred_labels)
     print(conf_matrix)
 
+    return
+
+def draw_grid(images, n_classes, grid_size, h, w):
+    """
+    Draws images on a grid, with columns corresponding to classes.
+    @param images: Dictionary with images in a form of (class_id, list of np.array images).
+    @param n_classes: Number of classes.
+    @param grid_size: Number of samples per class.
+    @param h: Height in pixels.
+    @param w: Width in pixels.
+    @return: Rendered image
+    """
+    image_all = np.zeros((h, w, 3), dtype=np.uint8) #bylo 3
+    h_size = int(h / grid_size)
+    w_size = int(w / n_classes)
+
+    col = 0
+    for class_id, class_images in images.items():
+        for idx, cur_image in enumerate(class_images):
+            row = idx
+
+            if col < n_classes and row < grid_size:
+                image_resized = cv2.resize(cur_image, (w_size, h_size))
+                image_all[row * h_size: (row + 1) * h_size, col * w_size: (col + 1) * w_size, :] = image_resized
+
+        col += 1
+
+    return image_all
+
+def display(data):
+    """
+    Displays samples of correct and incorrect classification.
+    @param data: List of dictionaries, one for every sample, with entries "image" (np.array with image), "label" (class_id),
+                    "desc" (np.array with descriptor), and "label_pred".
+    @return: Nothing.
+    """
+    n_classes = 2
+
+    corr = {}
+    incorr = {}
+
+    for idx, sample in enumerate(data):
+        if sample['desc'] is not None:
+            if sample['label_pred'] == sample['label']:
+                if sample['label_pred'] not in corr:
+                    corr[sample['label_pred']] = []
+                corr[sample['label_pred']].append(idx)
+            else:
+                if sample['label_pred'] not in incorr:
+                    incorr[sample['label_pred']] = []
+                incorr[sample['label_pred']].append(idx)
+
+            # print('ground truth = %s, predicted = %s' % (sample['label'], pred))
+            # cv2.imshow('image', sample['image'])
+            # cv2.waitKey()
+
+    grid_size = 8
+
+    # sort according to classes
+    corr = dict(sorted(corr.items(), key=lambda item: item[0]))
+    corr_disp = {}
+    for key, samples in corr.items():
+        idxs = random.sample(samples, min(grid_size, len(samples)))
+        corr_disp[key] = [data[idx]['image'] for idx in idxs]
+    # sort according to classes
+    incorr = dict(sorted(incorr.items(), key=lambda item: item[0]))
+    incorr_disp = {}
+    for key, samples in incorr.items():
+        idxs = random.sample(samples, min(grid_size, len(samples)))
+        incorr_disp[key] = [data[idx]['image'] for idx in idxs]
+
+    image_corr = draw_grid(corr_disp, n_classes, grid_size, 800, 600)
+    image_incorr = draw_grid(incorr_disp, n_classes, grid_size, 800, 600)
+
+    #zamiana image_corr z _incorr
+    cv2.imshow('images correct', image_incorr)
+    cv2.imshow('images incorrect', image_corr)
+    cv2.waitKey()
+
+    # this function does not return anything
+    return
+
+def display_new(data):
+    for idx, sample in enumerate(data):
+        if sample['desc'] is not None:
+            if sample['label_pred'] == sample['label']:
+                if sample['label_pred'] != 0:
+                    print(sample['png_name'])
+    print('koniec plotowania')
     return
 
 def main():
@@ -152,8 +253,8 @@ def main():
     display_dataset_stats(data_test)
 
     # you can comment those lines after dictionary is learned and saved to disk.
-    #print('learning BoVW')
-    #learn_bovw(data_train)
+    print('learning BoVW')
+    learn_bovw(data_train)
 
     print('Ekstrakcja trenowanych cech')
     data_train = extract_features(data_train)
@@ -168,6 +269,10 @@ def main():
     data_test = predict(rf, data_test)
 
     evaluate(data_test)
+    display_new(data_test)
+    #display(data_test)
+
+
 
 
 if __name__ == '__main__':
