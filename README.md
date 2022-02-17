@@ -21,8 +21,9 @@
 8) "extract_features" oblicza deskryptory dla obrazów, 
 9) Funckja "train" ma na celu wytrenowanie modelu. Wyjściem tej funkcji jest model,
 10) "predict" przyjmuje model oraz dane, predykuje etykiety przyjmowanych elementów,
-11) Dokonanie ewaluacji następuje w funkcji "evaluate". Zaimplementowana jest tu funkcjonalność porównywania predykowanych etykiet z prawdziwymi. Dzięki funkcji można określić w jakim stopniu skuteczna jest klasyfikacja programu,
-12) "display_data" - ta funkcja umożliwia wyświetlenie wymaganych danych. Jeśli na przyjętym zdjęciu znajduje się znak przejścia dla pieszych (crosswalk), program wypisuje nazwę zdjęcia, na którym wspomniany znak się znajduje. Linijkę niżej wyświetlona jest liczba wskazująca na ilość znaków znajdujących się w obrębie fotografii ze znakiem przejścia dla pieszych. Przykładowo, na zdjęciu "road463.png" znajdują się trzy rozpoznawalne przez program znaki znaki (konkretnie: trafficlight, speedlimit oraz crosswalk) i dlatego wyświetlana liczba wynosi 3. Pod spodem jest informacja o wymiarach obszaru, na którym znajduje się wykryty znak. Informacja zaczerpnięta jest ze wspomnianych wcześniej plików.
+11) Dokonanie ewaluacji następuje w funkcji "evaluate". Zaimplementowana jest tu funkcjonalność porównywania predykowanych etykiet z prawdziwymi. Dzięki funkcji można określić w jakim stopniu skuteczna jest klasyfikacja programu. Funkcja przelicza macierz pomyłek oraz "score" określający jakość klasyfikacji. Poniżej wynik działania programu dla zbioru testowego składającego się z 201 pozycji (zbiór treningowy zawierał 686 zdjęć z pobranej bazy):
+![](readme_images/score.png)
+13) "display_data" - ta funkcja umożliwia wyświetlenie wymaganych danych. Jeśli na przyjętym zdjęciu znajduje się znak przejścia dla pieszych (crosswalk), program wypisuje nazwę zdjęcia, na którym wspomniany znak się znajduje. Linijkę niżej wyświetlona jest liczba wskazująca na ilość znaków znajdujących się w obrębie fotografii ze znakiem przejścia dla pieszych. Przykładowo, na zdjęciu "road463.png" znajdują się trzy rozpoznawalne przez program znaki znaki (konkretnie: trafficlight, speedlimit oraz crosswalk) i dlatego wyświetlana liczba wynosi 3. Pod spodem jest informacja o wymiarach obszaru, na którym znajduje się wykryty znak. Informacja zaczerpnięta jest ze wspomnianych wcześniej plików.
  
  
  
