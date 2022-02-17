@@ -173,8 +173,8 @@ def main():
     display_dataset_stats(data_test)
 
     # Kiedy slownik jest nauczony i zapisany w folderze mozna zakomentowac dwie nastepne linijki.
-    #print('Uczenie BoVW')
-    #learn_bovw(data_train)
+    print('Uczenie BoVW')
+    learn_bovw(data_train)
 
     print('Ekstrakcja trenowanych cech')
     data_train = extract_features(data_train)
