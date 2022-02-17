@@ -20,20 +20,27 @@ def load_data(path, filename):
     entry_list = pandas.read_csv(os.path.join(path, filename))
 
     data = []
+    elementy = 0
     for idx, entry in entry_list.iterrows():
         class_id = class_id_to_new_class_id[entry['ClassId']]
         image_path = entry['Path']
 
-        X1 = entry_list['Roi.X1']
+        X1 = entry['Roi.X1']
         X2 = entry['Roi.X2']
         Y1 = entry['Roi.Y1']
         Y2 = entry['Roi.Y2']
 
+
+        if filename in entry_list.iterrows():
+            index_ = entry['ClassId'].index(filename)
+            elementy = entry['1'][index_]
+
         if class_id != -1:
             image = cv2.imread(os.path.join(path, image_path))
+            cropped_im = image[int(Y1):int(Y2), int(X1):int(X2)]
             #image = Image.open(os.path.join(path, image_path))
             #image = image.crop[Y1, Y2, X1, X2]
-            data.append({'image': image, 'label': class_id, 'size': [X1, Y1, X2, Y2], 'png_name': image_path})
+            data.append({'image': image, 'cropped_im': cropped_im, 'label': class_id, 'size': [X1, Y1, X2, Y2], 'png_name': image_path, 'xmin': X1, 'xmax': X2, 'ymin': Y1, 'ymax': Y2, 'Count': elementy})
 
     return data
 
@@ -65,8 +72,8 @@ def learn_bovw(data):
 
     sift = cv2.SIFT_create()
     for sample in data:
-        kpts = sift.detect(sample['image'], None)
-        kpts, desc = sift.compute(sample['image'], kpts)
+        kpts = sift.detect(sample['cropped_im'], None)
+        kpts, desc = sift.compute(sample['cropped_im'], kpts)
 
         if desc is not None:
             bow.add(desc)
@@ -88,8 +95,8 @@ def extract_features(data):
     bow.setVocabulary(vocabulary)
     for sample in data:
         # compute descriptor and add it as "desc" entry in sample
-        kpts = sift.detect(sample['image'], None)
-        desc = bow.compute(sample['image'], kpts)  # robienie deskryptora
+        kpts = sift.detect(sample['cropped_im'], None)
+        desc = bow.compute(sample['cropped_im'], kpts)  # robienie deskryptora
         sample['desc'] = desc
 
     return data
@@ -235,12 +242,17 @@ def display(data):
     return
 
 def display_new(data):
+
     for idx, sample in enumerate(data):
+        count = sample['Count']
         if sample['desc'] is not None:
             if sample['label_pred'] == sample['label']:
                 if sample['label_pred'] != 0:
+                    count=count+1
                     print(sample['png_name'])
-    print('koniec plotowania')
+                    print(count)
+                    print('xmin = ', sample['xmin'], 'xmax = ', sample['xmax'], 'ymin= ', sample['ymin'], 'ymax = ', sample['ymax'])
+    print('Koniec wyswietlania')
     return
 
 def main():
@@ -252,7 +264,7 @@ def main():
     print('Zbior danych testowych:')
     display_dataset_stats(data_test)
 
-    # you can comment those lines after dictionary is learned and saved to disk.
+    # Kiedy slownik jest nauczony i zapisany w folderze mozna zakomentowac dwie nastepne linijki.
     print('learning BoVW')
     learn_bovw(data_train)
 
