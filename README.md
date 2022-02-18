@@ -7,7 +7,7 @@
  
  **Cel projektu:** 
  
-Celem projektu było zaimplementowanie funkcjonalności rozpoznawania znaków przejścia dla pieszych (crosswalks) na zdjęciach z bazy testowej. Program został oparty na plikach wyodrębnionych z pobranej przykładowej bazy znaków drogowych. 
+Celem projektu było zaimplementowanie funkcjonalności rozpoznawania znaków przejścia dla pieszych (crosswalks) na zdjęciach z bazy testowej - zadanie klasyfikacji. Program został oparty na plikach wyodrębnionych z pobranej przykładowej bazy znaków drogowych. 
  
 **Wykonanie projektu:**
 
