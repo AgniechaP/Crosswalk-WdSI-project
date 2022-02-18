@@ -159,7 +159,7 @@ def display_data(data):
                 if sample['label_pred'] != 0:
                     print(sample['png_name'])
                     print(sample['amount'])
-                    print('xmin = ', sample['xmin'], 'xmax = ', sample['xmax'], 'ymin= ', sample['ymin'], 'ymax = ', sample['ymax'])
+                    print(sample['xmin'], sample['xmax'], sample['ymin'], sample['ymax'])
     print('Koniec wyswietlania')
     return
 
