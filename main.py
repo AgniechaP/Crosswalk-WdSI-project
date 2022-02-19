@@ -5,8 +5,8 @@ import cv2
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 import pandas
-from PIL import Image
 import sklearn.metrics
+
 class_id_to_new_class_id = {1: 1, #crosswalks
                             2: 0,
                             3: 0,
@@ -136,9 +136,6 @@ def evaluate(data):  #porownanie statystyczne, kolumna label_pred - wypredkowane
     pred_labels = []
     true_labels = []
 
-    precisions = []
-    recalls = []
-
     for sample in data:
         if sample['desc'] is not None:
             pred_labels.append(sample['label_pred'])
@@ -153,21 +150,9 @@ def evaluate(data):  #porownanie statystyczne, kolumna label_pred - wypredkowane
     conf_matrix = confusion_matrix(true_labels, pred_labels)
     print(conf_matrix)
 
-    #r = np.flip(sklearn.metrics.confusion_matrix(true_labels, pred_labels))
-    #precision = sklearn.metrics.precision_score(y_true=true_labels, y_pred=pred_labels, average=None)
-    #recall = sklearn.metrics.recall_score(y_true = true_labels, y_pred = pred_labels, average=None)
-    #AP = np.sum((recall[:-1] - recall[1:]) * precision[:-1])
-    #mAP_metric_1 = np.sum(AP)
-    #mAP_metric_2 = mAP_metric_1/2
-    #precisions.append(precision)
-    #precisions = np.array(precisions)
-    #print('precision: ', precision)
-    #print('recall: ', recall)
-    #print('AP: ', AP)
-    #print('mAP: ', mAP_metric_2)
-
     average_precision = sklearn.metrics.average_precision_score(true_labels, pred_labels)
     print('Average precision: {0:0.2f}'.format(average_precision))
+
 
     return
 
