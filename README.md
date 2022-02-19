@@ -25,6 +25,10 @@ Celem projektu było zaimplementowanie funkcjonalności rozpoznawania znaków pr
 
 ![](readme_images/score.png)
 
+Dodatkowo, w funkcji evaluate obliczono metrykę Average Precision, która wskazała następujący wynik:
+
+![](readme_images/average.png)
+
 12) "display_data" - ta funkcja umożliwia wyświetlenie wymaganych danych. Jeśli na przyjętym zdjęciu znajduje się znak przejścia dla pieszych (crosswalk), program wypisuje nazwę zdjęcia, na którym wspomniany znak się znajduje. Linijkę niżej wyświetlona jest liczba wskazująca na ilość znaków znajdujących się w obrębie fotografii ze znakiem przejścia dla pieszych. Przykładowo, na zdjęciu "road463.png" znajdują się trzy rozpoznawalne przez program znaki (konkretnie: trafficlight, speedlimit oraz crosswalk) i dlatego wyświetlana liczba wynosi 3. Pod spodem jest informacja o wymiarach obszaru, na którym znajduje się wykryty znak. Informacja zaczerpnięta jest ze wspomnianych wcześniej plików.
  
  ![](readme_images/example.png)
